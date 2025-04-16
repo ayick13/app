@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<meta name="description" content="Aplikasi web Generator Teks AI dengan 25+ model canggih. Fitur mode gelap, fokus, riwayat percakapan, dan contoh otomatis untuk membantu berbagai kebutuhan kreatif Anda.">
+    		<!-- Default (Light Mode) -->
+<meta name="theme-color" content="#4361ee" media="(prefers-color-scheme: light)">
+
+<!-- Dark Mode -->
+<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
     <title>Generator Teks AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -1292,6 +1298,13 @@
             updateStatus('error', 'Tidak ada koneksi internet');
             logToConsole('Peringatan: Tidak ada koneksi internet', 'warning');
         });
+        
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+if (darkMode) {
+  themeColorMeta.setAttribute('content', '#121212');
+} else {
+  themeColorMeta.setAttribute('content', '#4361ee');
+}
     </script>
 </body>
 </html>
