@@ -1,1944 +1,801 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free online AI Image Generator powered by multiple models (DALL·E 3, Stable Diffusion). Create high-quality digital art, photorealistic images with advanced controls. Save your generation history and download your creations.">
-    <title>Advanced AI Image Generator</title>
+    <title>Generator Teks AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: rgba(0, 82, 255, 0.8);
-            --secondary-color: rgba(154, 34, 211, 0.91);
-            --accent-color: #2499f2;
-            --danger-color: #e74c3c;
-            --success-color: #27ae60;
-            --light-color: #f8f9fa;
-            --dark-color: #2c3e50;
-            --gray-color: #95a5a6;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-            --touch-target-min: 44px; /* Ukuran minimum untuk elemen yang bisa disentuh */
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --bg-color: #ffffff;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --console-bg: #f8f9fa;
+            --console-text: #212529;
+            --success: #4bb543;
+            --error: #ff3333;
         }
-        
-        .dark-mode {
-            --primary-color: rgba(0, 82, 255, 0.8);
-            --secondary-color: rgba(154, 34, 211, 0.91);
-            --accent-color: #2cd5b6;
-            --danger-color: #ff6b6b;
-            --success-color: #4cd97b;
-            --light-color: #2d3748;
-            --dark-color: #f8f9fa;
-            --gray-color: #a0aec0;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+        [data-theme="dark"] {
+            --primary: #5a7dff;
+            --primary-dark: #4d6cfd;
+            --light: #1a1a1a;
+            --dark: #f8f9fa;
+            --gray: #adb5bd;
+            --border: #343a40;
+            --bg-color: #121212;
+            --text-color: #e9ecef;
+            --card-bg: #1e1e1e;
+            --console-bg: #2d2d2d;
+            --console-text: #e9ecef;
+            --success: #5cb85c;
+            --error: #ff6b6b;
         }
-        
+
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent; /* Menghilangkan highlight saat tap di mobile */
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
-            color: var(--dark-color);
-            background-color: #ecf0f1;
-            padding: 10px;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 1rem;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            touch-action: manipulation; /* Meningkatkan responsivitas touch */
-        }
-        
-        body.dark-mode {
-            background-color: #1a202c;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-            transition: background-color 0.3s ease;
-            flex: 1;
-            width: 100%;
-        }
-        
-        .dark-mode .container {
-            background-color: #2d3748;
-        }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 15px;
-            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
             position: relative;
         }
-        
-        h1 {
-            font-size: clamp(1.5rem, 4vw, 2.2rem); /* Responsive font size */
-            margin-bottom: 8px;
+
+        .container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            max-width: 800px;
+            margin: 1rem auto;
+            transition: all 0.3s;
         }
-        
-        .subtitle {
-            font-size: clamp(0.8rem, 2.5vw, 1rem);
-            opacity: 0.9;
-            margin-bottom: 8px;
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+                margin: 0.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            #prompt {
+                padding: 0.8rem 2.5rem 0.8rem 0.8rem;
+            }
+
+            .theme-toggle {
+                top: 0.5rem;
+                right: 0.5rem;
+            }
         }
-        
-        .header-actions {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .header-btn {
-            background-color: rgba(255, 255, 255, 0.2);
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 20px;
+            padding: 0.5rem;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: clamp(0.7rem, 3vw, 0.85rem);
-            transition: var(--transition);
-            min-height: var(--touch-target-min);
-        }
-        
-        .header-btn:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-        
-        .header-btn i {
-            font-size: 0.9em;
-        }
-        
-        .main-content {
-            display: grid;
-            grid-template-columns: minmax(250px, 300px) 1fr;
-            gap: 15px;
-            padding: 15px;
-        }
-        
-        .sidebar {
-            background-color: var(--light-color);
-            border-radius: var(--border-radius);
-            padding: 15px;
-            height: fit-content;
-            position: sticky;
-            top: 15px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .dark-mode .sidebar {
-            background-color: #4a5568;
-        }
-        
-        .control-group {
-            margin-bottom: 15px;
-        }
-        
-        .control-group h3 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        
-        select, input, textarea, button {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 0.95rem;
-            transition: var(--transition);
-            background-color: white;
-            color: #333;
-            min-height: var(--touch-target-min);
-        }
-        
-        .dark-mode select,
-        .dark-mode input,
-        .dark-mode textarea {
-            background-color: #2d3748;
-            color: white;
-            border-color: #4a5568;
-        }
-        
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(57, 143, 255, 0.34);
-        }
-        
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 8px;
-            min-height: var(--touch-target-min);
-        }
-        
-        button:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-        
-        button:disabled {
-            background-color: var(--gray-color);
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        button i {
-            font-size: 0.9em;
-        }
-        
-        #generateBtn {
-            padding: 12px;
-            font-size: 1.1rem;
-            margin-top: 10px;
-        }
-        
-        .prompt-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        
-        .prompt-btn {
-            padding: 10px 12px;
-            font-size: 0.8rem;
-            width: auto;
-            border-radius: 4px;
-            flex: 1;
-            min-height: var(--touch-target-min);
-        }
-        
-        .results-area {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 15px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .dark-mode .results-area {
-            background-color: #2d3748;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 30px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: var(--border-radius);
-        }
-        
-        .dark-mode .loading {
-            background-color: rgba(45, 55, 72, 0.8);
-        }
-        
-        .spinner {
-            border: 4px solid rgba(52, 152, 219, 0.2);
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
             width: 40px;
             height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .result-container {
-            margin-top: 15px;
-        }
-        
-        .image-container {
-            position: relative;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-            margin-bottom: 15px;
-            transition: var(--transition);
-        }
-        
-        .image-container.zoomed {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1000;
-            margin: 0;
-            border-radius: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(0, 0, 0, 0.9);
-            cursor: zoom-out;
-        }
-        
-        .image-container.zoomed img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-        }
-        
-        .image-container img {
-            width: 100%;
-            display: block;
-            transition: var(--transition);
-            cursor: zoom-in;
-        }
-        
-        .image-container:hover img {
-            transform: scale(1.02);
-        }
-        
-        .image-actions {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-            padding: 12px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            opacity: 0;
-            transition: var(--transition);
-        }
-        
-        .image-container:hover .image-actions,
-        .image-container.touch-active .image-actions {
-            opacity: 1;
-        }
-        
-        .image-zoom-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-            opacity: 0;
-            transition: var(--transition);
-            z-index: 2;
-        }
-        
-        .image-container:hover .image-zoom-actions,
-        .image-container.touch-active .image-zoom-actions {
-            opacity: 1;
-        }
-        
-        .zoom-btn {
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .zoom-btn:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-            transform: scale(1.1);
-        }
-        
-        .action-btn {
-            background-color: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            width: auto;
-            padding: 10px 12px;
-            border-radius: 20px;
-            backdrop-filter: blur(5px);
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            min-height: var(--touch-target-min);
-        }
-        
-        .action-btn:hover {
-            background-color: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-        
-        .grid-view {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-        
-        .history-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 8px;
-            min-height: var(--touch-target-min);
-        }
-        
-        .history-item:hover {
-            background-color: rgba(52, 152, 219, 0.1);
-        }
-        
-        .dark-mode .history-item:hover {
-            background-color: rgba(61, 165, 255, 0.1);
-        }
-        
-        .history-thumbnail {
-            width: 50px;
-            height: 50px;
-            border-radius: 4px;
-            object-fit: cover;
-            margin-right: 10px;
-        }
-        
-        .history-prompt {
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-grow: 1;
-        }
-        
-        .history-date {
-            font-size: 0.7rem;
-            color: var(--gray-color);
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
+            transition: all 0.3s;
             z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(3px);
-            overflow-y: auto;
-            padding: 15px;
-            box-sizing: border-box;
         }
-        
-        .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+        .theme-toggle:hover {
+            background: var(--primary-dark);
+            transform: rotate(15deg);
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
             position: relative;
-            transition: background-color 0.3s ease;
         }
-        
-        .dark-mode .modal-content {
-            background-color: #2d3748;
+
+        #prompt {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background-color: var(--card-bg);
+            color: var(--text-color);
         }
-        
-        .close {
+
+        #prompt:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        .clear-input {
             position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 1.5rem;
-            color: var(--gray-color);
-            cursor: pointer;
-            width: var(--touch-target-min);
-            height: var(--touch-target-min);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .close:hover {
-            color: var(--dark-color);
-        }
-        
-        .tab-container {
-            display: flex;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 15px;
-        }
-        
-        .dark-mode .tab-container {
-            border-bottom-color: #4a5568;
-        }
-        
-        .tab {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            font-weight: 500;
-            transition: var(--transition);
-            min-height: var(--touch-target-min);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .tab.active {
-            border-bottom-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .advanced-options {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        
-        .advanced-options.show {
-            max-height: 500px;
-            margin-top: 15px;
-        }
-        
-        .toggle-advanced {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--dark-color);
-            padding: 10px 0;
-            font-size: 0.85rem;
+            color: var(--gray);
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            width: auto;
-            min-height: var(--touch-target-min);
-        }
-        
-        .toggle-advanced i {
-            transition: transform 0.3s ease;
-        }
-        
-        .toggle-advanced.active i {
-            transform: rotate(180deg);
-        }
-        
-        .model-info {
-            font-size: 0.8rem;
-            color: var(--gray-color);
-            margin-top: 5px;
-            line-height: 1.4;
-        }
-        
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--success-color);
-            color: white;
-            padding: 15px 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            max-width: calc(100% - 40px);
-        }
-        
-        .notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .notification.error {
-            background-color: var(--danger-color);
-        }
-        
-        /* DALL-E Style Dropdown */
-        #dalleStyleGroup {
-            transition: var(--transition);
-            margin-top: 15px;
+            font-size: 1.2rem;
+            padding: 0.5rem;
             display: none;
         }
-        
-        #dalleStyleGroup label {
-            color: var(--primary-color);
-            font-weight: 600;
+
+        #prompt:not(:placeholder-shown) + .clear-input {
+            display: block;
         }
-        
-        #dalleStyle {
-            border-color: var(--primary-color);
-            background-color: rgba(52, 152, 219, 0.1);
+
+        .clear-input:hover {
+            color: var(--primary);
         }
-        
-        .dark-mode #dalleStyle {
-            background-color: rgba(61, 165, 255, 0.1);
+
+        .button-container {
+            margin-bottom: 0.5rem;
+            position: relative;
         }
-        
-        footer {
-            text-align: center;
-            padding: 15px;
-            margin-top: 15px;
-            color: var(--dark-color);
-            font-size: 0.9rem;
-        }
-        
-        .dark-mode footer {
-            color: var(--light-color);
-        }
-        
-        .style-presets {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .style-preset {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
+
+        button#submit {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.8rem;
-            text-align: center;
-            min-height: var(--touch-target-min);
+            width: 100%;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 0.5rem;
         }
-        
-        .style-preset:hover {
-            border-color: var(--primary-color);
-            background-color: rgba(52, 152, 219, 0.1);
+
+        button#submit:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
         }
-        
-        .dark-mode .style-preset {
-            border-color: #4a5568;
+
+        button#submit:disabled {
+            background-color: var(--gray);
+            transform: none;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
-        
-        .dark-mode .style-preset:hover {
-            background-color: rgba(61, 165, 255, 0.1);
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+            display: none;
         }
-        
-        /* Back button style */
-        .back-button {
-            display: inline-flex;
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .response-meta {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            background-color: var(--primary-color);
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            height: 1.2rem;
+        }
+
+        .response-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        #response {
+            padding: 1.5rem;
+            background-color: var(--light);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            min-height: 120px;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+        }
+
+        #response.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+
+        .console-log {
+            background-color: var(--console-bg);
+            color: var(--console-text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--console-text);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .examples {
+            margin-top: 2rem;
+        }
+
+        .examples h3 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .example-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .example-chip {
+            background-color: var(--border);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .example-chip:hover {
+            background-color: var(--primary);
             color: white;
-            padding: 12px 15px;
-            border-radius: var(--border-radius);
-            text-decoration: none;
-            margin: 15px auto;
-            transition: var(--transition);
-            min-height: var(--touch-target-min);
         }
-        
-        .back-button:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
-        
-        /* NSFW Filter checkbox */
-        #nsfwFilter {
-            width: auto;
-            margin-right: 8px;
-            min-height: auto;
-            height: 18px;
-            width: 18px;
+
+        .badge-info {
+            background-color: var(--primary);
+            color: white;
         }
-        
-        /* Image Details Modal - Mobile Layout */
-        .image-details-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
+
+        .badge-success {
+            background-color: var(--success);
+            color: white;
         }
-        
-        .image-details-info {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+
+        .badge-error {
+            background-color: var(--error);
+            color: white;
         }
-        
-        .image-details-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+
+        .loading-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                position: static;
-            }
-            
-            .grid-view {
-                grid-template-columns: 1fr;
-            }
-            
-            .style-presets {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-content {
-                margin: 20px auto;
-                padding: 15px;
-            }
-            
-            .image-details-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .image-details-info {
-                grid-template-columns: 1fr;
-            }
-            
-            .image-details-actions {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-actions {
-                gap: 5px;
-            }
-            
-            .header-btn {
-                padding: 8px 12px;
-                flex: 1;
-                min-width: calc(50% - 5px);
-            }
-            
-            .prompt-actions {
-                flex-wrap: wrap;
-            }
-            
-            .prompt-btn {
-                min-width: calc(33.333% - 5px);
-            }
+
+        .loading-chip {
+            background-color: var(--border);
+            border-radius: 20px;
+            width: 120px;
+            height: 34px;
+            animation: pulse 1.5s infinite ease-in-out;
         }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-            
-            .container {
-                border-radius: 0;
-            }
-            
-            header {
-                padding: 10px;
-            }
-            
-            .main-content {
-                padding: 10px;
-                gap: 10px;
-            }
-            
-            .header-btn {
-                min-width: 100%;
-            }
-            
-            .prompt-btn {
-                min-width: calc(50% - 4px);
-            }
-            
-            .action-btn {
-                padding: 8px;
-                font-size: 0.7rem;
-            }
-            
-            .zoom-btn {
-                width: 32px;
-                height: 32px;
-            }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.3; }
         }
-        
-        /* Touch improvements */
-        @media (hover: none) {
-            .image-actions, 
-            .image-zoom-actions {
-                opacity: 1 !important; /* Always show actions on touch devices */
-            }
-            
-            .image-container {
-                touch-action: manipulation;
-            }
-            
-            button, .tab, .style-preset, .history-item {
-                transition: none;
-            }
-            
-            button:active, .tab:active, .style-preset:active, .history-item:active {
-                transform: scale(0.98);
-                opacity: 0.9;
-            }
+
+        .model-info {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .model-tag {
+            background-color: var(--border);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .model-tag:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: var(--light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
 <body>
+    <!-- Dark mode toggle moved outside container -->
+    <button class="theme-toggle" id="themeToggle" title="Ubah tema">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+
     <div class="container">
-        <header>
-            <h1><i class="fas fa-magic-wand-sparkles"></i> Advanced AI Image Generator</h1>
-            <p class="subtitle">Create stunning images with cutting-edge AI models</p>
-            
-            <div class="header-actions">
-                <button class="header-btn" id="darkModeToggle">
-                    <i class="fas fa-moon"></i> Dark Mode
-                </button>
-                <button class="header-btn" id="clearAllBtn">
-                    <i class="fas fa-trash-alt"></i> Clear All
-                </button>
-                <button class="header-btn" id="exportHistoryBtn">
-                    <i class="fas fa-file-export"></i> Export
-                </button>
-                <button class="header-btn" id="importHistoryBtn">
-                    <i class="fas fa-file-import"></i> Import
-                </button>
-            </div>
-        </header>
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> Generator Teks AI</h1>
+        </div>
         
-        <div class="main-content">
-            <div class="sidebar">
-                <div class="control-group">
-                    <h3><i class="fas fa-cog"></i> Generation Settings</h3>
-                    <label for="model">AI Model</label>
-                    <select id="model">
-                        <option value="Flux-Default" selected>Flux Default</option>
-                        <option value="DALL-E">DALL·E 3 (Premium)</option>
-                        <option value="stable-diffusion">Stable Diffusion</option>
-                    </select>
-                    <div class="model-info" id="modelInfo">
-                        Our most advanced general-purpose model. Great for most use cases.
-                    </div>
-                </div>
-                
-                <div class="control-group" id="dalleStyleGroup" style="display: none;">
-                    <label for="dalleStyle">Art Style (DALL·E 3 only)</label>
-                    <select id="dalleStyle">
-                        <option value="default" selected>Default Style</option>
-                        <option value="photographic">Photographic</option>
-                        <option value="digital-art">Digital Art</option>
-                        <option value="3d-render">3D Render</option>
-                        <option value="pixel-art">Pixel Art</option>
-                        <option value="anime">Anime</option>
-                        <option value="watercolor">Watercolor</option>
-                        <option value="oil-painting">Oil Painting</option>
-                        <option value="charcoal-sketch">Charcoal Sketch</option>
-                        <option value="comic-book">Comic Book</option>
-                        <option value="low-poly">Low Poly</option>
-                        <option value="isometric">Isometric</option>
-                        <option value="cyberpunk">Cyberpunk</option>
-                        <option value="steampunk">Steampunk</option>
-                        <option value="surrealism">Surrealism</option>
-                        <option value="fantasy-art">Fantasy Art</option>
-                    </select>
-                    
-                    <div class="style-presets">
-                        <div class="style-preset" onclick="applyStylePreset('portrait')">Portrait</div>
-                        <div class="style-preset" onclick="applyStylePreset('landscape')">Landscape</div>
-                        <div class="style-preset" onclick="applyStylePreset('fantasy')">Fantasy</div>
-                        <div class="style-preset" onclick="applyStylePreset('sci-fi')">Sci-Fi</div>
-                    </div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="prompt">Prompt</label>
-                    <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
-                    <div class="prompt-actions">
-                        <button class="prompt-btn" id="clearPromptBtn">
-                            <i class="fas fa-trash"></i> Clear
-                        </button>
-                        <button class="prompt-btn" id="enhancePromptBtn">
-                            <i class="fas fa-magic"></i> Enhance
-                        </button>
-                        <button class="prompt-btn" id="analyzePromptBtn">
-                            <i class="fas fa-search"></i> Analyze
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="negativePrompt">Negative Prompt</label>
-                    <textarea id="negativePrompt" placeholder="What you don't want in the image..."></textarea>
-                </div>
-                
-                <button class="toggle-advanced" id="toggleAdvanced">
-                    <i class="fas fa-chevron-down"></i> Advanced Options
-                </button>
-                
-                <div class="advanced-options" id="advancedOptions">
-                    <div class="control-group">
-                        <label for="width">Width</label>
-                        <select id="width">
-                            <option value="512">512px</option>
-                            <option value="768">768px</option>
-                            <option value="1024" selected>1024px</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label for="height">Height</label>
-                        <select id="height">
-                            <option value="512">512px</option>
-                            <option value="768">768px</option>
-                            <option value="1024" selected>1024px</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label for="seed">Seed (for reproducibility)</label>
-                        <input type="number" id="seed" placeholder="Random if empty">
-                    </div>
-                    
-                    <div class="control-group">
-                        <label for="steps">Generation Steps (20-50)</label>
-                        <input type="number" id="steps" min="20" max="50" value="30">
-                    </div>
-                    
-                    <div class="control-group">
-                        <label for="cfgScale">Creativity Scale (1-20)</label>
-                        <input type="number" id="cfgScale" min="1" max="20" value="7">
-                    </div>
-                    
-                    <div class="control-group">
-                        <label for="nsfwFilter" style="display: flex; align-items: center;">
-                            <input type="checkbox" id="nsfwFilter" checked> 
-                            Strict NSFW Filtering (block unsafe content)
-                        </label>
-                        <div class="model-info">When enabled, the system will reject any generation requests that may contain NSFW content.</div>
-                    </div>
-                </div>
-                
-                <button id="generateBtn">
-                    <i class="fas fa-magic-wand-sparkles"></i> Generate Image
-                </button>
-            </div>
-            
-            <div class="results-area">
-                <div class="tab-container">
-                    <div class="tab active" data-tab="results">Results</div>
-                    <div class="tab" data-tab="history">History</div>
-                    <div class="tab" data-tab="saved">Saved</div>
-                </div>
-                
-                <div class="tab-content active" id="resultsTab">
-                    <div class="loading" id="loading">
-                        <div class="spinner"></div>
-                        <p>Generating your image... This may take a moment.</p>
-                        <p id="generationInfo"></p>
-                    </div>
-                    
-                    <div class="result-container" id="result">
-                        <div class="grid-view" id="imageGrid"></div>
-                    </div>
-                </div>
-                
-                <div class="tab-content" id="historyTab">
-                    <div id="historyList"></div>
-                </div>
-                
-                <div class="tab-content" id="savedTab">
-                    <div id="savedList"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div style="text-align: center;">
-        <a href="https://kenthir.my.id/tantangan.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Kembali ke Tantangan
-        </a>
-    </div>
-    
-    <footer>
-        <p>&copy; <span id="currentYear"></span> Advanced AI Image Generator. All rights reserved.</p>
-        <p id="versionInfo">Version 2.1.0</p>
-    </footer>
-    
-    <!-- API Key Modal -->
-    <div id="apiKeyModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2><i class="fas fa-key"></i> OpenAI API Key Required</h2>
-            <p>DALL·E 3 requires a valid OpenAI API key for image generation.</p>
-            <p>Your key will be used only for this session and won't be stored.</p>
-            
-            <div style="margin: 20px 0;">
-                <label for="apiKeyInput">Enter your OpenAI API key:</label>
-                <input type="password" id="apiKeyInput" placeholder="sk-...">
-                <small style="display: block; margin-top: 5px; color: var(--gray-color);">
-                    You can find your API key at <a href="https://platform.openai.com/account/api-keys" target="_blank">OpenAI Dashboard</a>
-                </small>
-            </div>
-            
-            <button id="submitApiKey">
-                <i class="fas fa-check"></i> Submit API Key
+        <div class="input-group">
+            <input type="text" id="prompt" placeholder="Tanyakan apa saja..." autocomplete="off">
+            <button class="clear-input" id="clearInput" title="Hapus teks">
+                <i class="fas fa-times"></i>
             </button>
         </div>
-    </div>
-    
-    <!-- Image Details Modal -->
-    <div id="imageDetailsModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <span class="close">&times;</span>
-            <div class="image-details-container">
-                <div>
-                    <img id="modalImage" src="" alt="Generated image" style="width: 100%; border-radius: var(--border-radius);">
-                </div>
-                <div class="image-details-info">
-                    <div>
-                        <strong>Prompt:</strong>
-                        <p id="modalPrompt" style="margin-top: 5px; background: var(--light-color); padding: 10px; border-radius: var(--border-radius);"></p>
-                    </div>
-                    <div>
-                        <strong>Negative Prompt:</strong>
-                        <p id="modalNegativePrompt" style="margin-top: 5px; background: var(--light-color); padding: 10px; border-radius: var(--border-radius);"></p>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <strong>Model:</strong>
-                            <p id="modalModel"></p>
-                        </div>
-                        <div>
-                            <strong>Size:</strong>
-                            <p id="modalSize"></p>
-                        </div>
-                        <div>
-                            <strong>Seed:</strong>
-                            <p id="modalSeed"></p>
-                        </div>
-                        <div>
-                            <strong>Date:</strong>
-                            <p id="modalDate"></p>
-                        </div>
-                        <div>
-                            <strong>Style:</strong>
-                            <p id="modalStyle"></p>
-                        </div>
-                    </div>
-                    <div class="image-details-actions">
-                        <button onclick="downloadCurrentModalImage()">
-                            <i class="fas fa-download"></i> Download
-                        </button>
-                        <button onclick="copyPromptToClipboard()">
-                            <i class="fas fa-copy"></i> Copy Prompt
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Prompt Analysis Modal -->
-    <div id="analysisModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2><i class="fas fa-chart-bar"></i> Prompt Analysis</h2>
-            <div id="analysisResults" style="margin-top: 20px;">
-                <!-- Analysis results will be displayed here -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Import History Modal -->
-    <div id="importModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2><i class="fas fa-file-import"></i> Import History</h2>
-            <p>Paste your exported history JSON data below:</p>
-            <textarea id="importData" style="width: 100%; min-height: 200px; margin: 15px 0;"></textarea>
-            <button id="confirmImport">
-                <i class="fas fa-check"></i> Import
+        
+        <div class="button-container">
+            <button id="submit">
+                <i class="fas fa-magic"></i>
+                <span id="button-text">Hasilkan Jawaban</span>
             </button>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <div class="response-meta" id="response-meta"></div>
+        <div class="model-info" id="modelInfo"></div>
+        
+        <div class="response-container">
+            <div id="response" class="empty">
+                <p><i class="fas fa-comment-dots"></i> Hasil generasi AI akan muncul di sini</p>
+            </div>
+        </div>
+
+        <div class="console-log" id="consoleLog">
+            <div class="console-header">
+                <span><i class="fas fa-terminal"></i> Log Sistem</span>
+                <span class="badge badge-info" id="logCounter">0 pesan</span>
+            </div>
+            <div id="consoleContent"></div>
+        </div>
+        
+        <div class="examples">
+            <h3><i class="fas fa-lightbulb"></i> Coba contoh berikut:</h3>
+            <div class="example-chips" id="exampleChipsContainer">
+                <div class="loading-chips">
+                    <div class="loading-chip"></div>
+                    <div class="loading-chip"></div>
+                    <div class="loading-chip"></div>
+                    <div class="loading-chip"></div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <!-- Notification -->
-    <div class="notification" id="notification">
-        <i class="fas fa-check-circle"></i>
-        <span id="notificationMessage">Image generated successfully!</span>
-    </div>
-    
+
     <script>
-        // DOM Elements
-        const elements = {
-            modelSelect: document.getElementById('model'),
-            promptInput: document.getElementById('prompt'),
-            negativePromptInput: document.getElementById('negativePrompt'),
-            widthSelect: document.getElementById('width'),
-            heightSelect: document.getElementById('height'),
-            seedInput: document.getElementById('seed'),
-            stepsInput: document.getElementById('steps'),
-            cfgScaleInput: document.getElementById('cfgScale'),
-            generateBtn: document.getElementById('generateBtn'),
-            loadingDiv: document.getElementById('loading'),
-            resultDiv: document.getElementById('result'),
-            imageGrid: document.getElementById('imageGrid'),
-            apiKeyModal: document.getElementById('apiKeyModal'),
-            apiKeyInput: document.getElementById('apiKeyInput'),
-            submitApiKeyBtn: document.getElementById('submitApiKey'),
-            toggleAdvancedBtn: document.getElementById('toggleAdvanced'),
-            advancedOptions: document.getElementById('advancedOptions'),
-            modelInfo: document.getElementById('modelInfo'),
-            tabs: document.querySelectorAll('.tab'),
-            tabContents: document.querySelectorAll('.tab-content'),
-            historyList: document.getElementById('historyList'),
-            savedList: document.getElementById('savedList'),
-            generationInfo: document.getElementById('generationInfo'),
-            notification: document.getElementById('notification'),
-            notificationMessage: document.getElementById('notificationMessage'),
-            imageDetailsModal: document.getElementById('imageDetailsModal'),
-            modalImage: document.getElementById('modalImage'),
-            modalPrompt: document.getElementById('modalPrompt'),
-            modalNegativePrompt: document.getElementById('modalNegativePrompt'),
-            modalModel: document.getElementById('modalModel'),
-            modalSize: document.getElementById('modalSize'),
-            modalSeed: document.getElementById('modalSeed'),
-            modalDate: document.getElementById('modalDate'),
-            modalStyle: document.getElementById('modalStyle'),
-            dalleStyleGroup: document.getElementById('dalleStyleGroup'),
-            dalleStyleSelect: document.getElementById('dalleStyle'),
-            darkModeToggle: document.getElementById('darkModeToggle'),
-            clearPromptBtn: document.getElementById('clearPromptBtn'),
-            enhancePromptBtn: document.getElementById('enhancePromptBtn'),
-            analyzePromptBtn: document.getElementById('analyzePromptBtn'),
-            clearAllBtn: document.getElementById('clearAllBtn'),
-            exportHistoryBtn: document.getElementById('exportHistoryBtn'),
-            importHistoryBtn: document.getElementById('importHistoryBtn'),
-            currentYear: document.getElementById('currentYear'),
-            analysisModal: document.getElementById('analysisModal'),
-            analysisResults: document.getElementById('analysisResults'),
-            importModal: document.getElementById('importModal'),
-            importData: document.getElementById('importData'),
-            confirmImport: document.getElementById('confirmImport'),
-            nsfwFilter: document.getElementById('nsfwFilter')
-        };
-        
-        // State
-        const state = {
-            currentApiKey: '',
-            generationHistory: JSON.parse(localStorage.getItem('aiImageHistory')) || [],
-            savedGenerations: JSON.parse(localStorage.getItem('aiImageSaved')) || [],
-            currentGeneration: null,
-            darkMode: localStorage.getItem('darkMode') === 'true',
-            zoomLevel: 1,
-            currentImageZoom: null,
-            isTouchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0
-        };
-        
-        // Model Information
-        const modelInfo = {
-            'Flux-Default': 'Our most advanced general-purpose model. Great for most use cases.',
-            'DALL-E': 'OpenAI\'s most advanced model. Requires API key. Excellent for photorealism.',
-            'stable-diffusion': 'Popular open-source model. Good for artistic and creative generations.'
-        };
-        
-        // Style presets
-        const stylePresets = {
-            'portrait': {
-                prompt: 'professional portrait photography, 85mm lens, soft lighting, shallow depth of field',
-                negative: 'blurry, distorted, low quality',
-                width: '768',
-                height: '1024'
-            },
-            'landscape': {
-                prompt: 'breathtaking landscape, golden hour, highly detailed, 8K resolution',
-                negative: 'blurry, low resolution, distorted',
-                width: '1024',
-                height: '768'
-            },
-            'fantasy': {
-                prompt: 'fantasy art, intricate details, vibrant colors, magical atmosphere',
-                negative: 'realistic, photograph, modern',
-                width: '1024',
-                height: '1024'
-            },
-            'sci-fi': {
-                prompt: 'sci-fi futuristic city, cyberpunk aesthetic, neon lights, rain, highly detailed',
-                negative: 'old, medieval, rustic',
-                width: '1024',
-                height: '512'
-            }
-        };
-        
-        // Initialize
-        function init() {
-            // Set current year in footer
-            elements.currentYear.textContent = new Date().getFullYear();
-            
-            // Set initial dark mode state
-            if (state.darkMode) {
-                document.body.classList.add('dark-mode');
-                elements.darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
-            }
-            
-            renderHistory();
-            renderSaved();
-            setupEventListeners();
-            updateModelInfo();
-            
-            // Add touch event listeners for better mobile interaction
-            if (state.isTouchDevice) {
-                setupTouchEvents();
-            }
+        // Toggle Mode Gelap
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+
+        function applyTheme() {
+            document.body.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            themeIcon.className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+            themeIcon.style.transform = darkMode ? 'rotate(90deg)' : 'rotate(0deg)';
+            localStorage.setItem('darkMode', darkMode);
         }
-        
-        // Event Listeners
-        function setupEventListeners() {
-            // Model selection
-            elements.modelSelect.addEventListener('change', handleModelChange);
+
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            applyTheme();
+        });
+
+        applyTheme();
+
+        // Fungsi Hapus Input
+        document.getElementById('clearInput').addEventListener('click', function() {
+            document.getElementById('prompt').value = '';
+            document.getElementById('prompt').focus();
+            this.style.display = 'none';
+            logToConsole('Input teks dihapus');
+        });
+
+        // Tampilkan tombol hapus saat ada input
+        document.getElementById('prompt').addEventListener('input', function() {
+            document.getElementById('clearInput').style.display = this.value ? 'block' : 'none';
+        });
+
+        // Log Sistem
+        let logCount = 0;
+        function logToConsole(message, type = 'info') {
+            const consoleContent = document.getElementById('consoleContent');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
             
-            // Generate button
-            elements.generateBtn.addEventListener('click', generateImage);
-            
-            // API Key modal
-            elements.submitApiKeyBtn.addEventListener('click', submitApiKey);
-            document.querySelectorAll('.modal .close').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.closest('.modal').style.display = 'none';
-                });
-            });
-            
-            // Advanced options toggle
-            elements.toggleAdvancedBtn.addEventListener('click', toggleAdvancedOptions);
-            
-            // Tab switching
-            elements.tabs.forEach(tab => {
-                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-            });
-            
-            // Window click for modals
-            window.addEventListener('click', (event) => {
-                if (event.target.classList.contains('modal')) {
-                    event.target.style.display = 'none';
-                }
-            });
-            
-            // Dark mode toggle
-            elements.darkModeToggle.addEventListener('click', toggleDarkMode);
-            
-            // Prompt actions
-            elements.clearPromptBtn.addEventListener('click', clearPrompt);
-            elements.enhancePromptBtn.addEventListener('click', enhancePrompt);
-            elements.analyzePromptBtn.addEventListener('click', analyzePrompt);
-            
-            // History actions
-            elements.clearAllBtn.addEventListener('click', confirmClearAll);
-            elements.exportHistoryBtn.addEventListener('click', exportHistory);
-            elements.importHistoryBtn.addEventListener('click', () => {
-                elements.importModal.style.display = 'block';
-                elements.importData.focus();
-            });
-            
-            // Import confirmation
-            elements.confirmImport.addEventListener('click', importHistory);
-            
-            // Image zoom on click
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('image-container') || e.target.closest('.image-container')) {
-                    const container = e.target.classList.contains('image-container') ? 
-                        e.target : e.target.closest('.image-container');
-                    toggleImageZoom(container);
-                }
-            });
-            
-            // Close zoomed image with ESC key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && state.currentImageZoom) {
-                    resetImageZoom(state.currentImageZoom);
-                }
-            });
-        }
-        
-        // Setup touch events for better mobile interaction
-        function setupTouchEvents() {
-            // Make image actions always visible on touch devices
-            document.querySelectorAll('.image-container').forEach(container => {
-                container.classList.add('touch-active');
-            });
-            
-            // Prevent long press from showing context menu on buttons
-            document.querySelectorAll('button, .history-item, .style-preset').forEach(el => {
-                el.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    return false;
-                });
-            });
-            
-            // Add touch feedback for buttons
-            document.querySelectorAll('button, .tab, .style-preset, .history-item').forEach(el => {
-                el.addEventListener('touchstart', () => {
-                    el.style.transform = 'scale(0.98)';
-                    el.style.opacity = '0.9';
-                }, { passive: true });
-                
-                el.addEventListener('touchend', () => {
-                    el.style.transform = '';
-                    el.style.opacity = '';
-                }, { passive: true });
-            });
-        }
-        
-        // Model change handler
-        function handleModelChange() {
-            const model = elements.modelSelect.value;
-            
-            if (model === 'DALL-E' && !state.currentApiKey) {
-                elements.apiKeyModal.style.display = 'block';
-                elements.apiKeyInput.focus();
-                elements.dalleStyleGroup.style.display = 'none';
-            } else if (model === 'DALL-E' && state.currentApiKey) {
-                elements.dalleStyleGroup.style.display = 'block';
+            let icon = '';
+            if (type === 'error') {
+                icon = '<i class="fas fa-exclamation-circle"></i>';
+            } else if (type === 'success') {
+                icon = '<i class="fas fa-check-circle"></i>';
             } else {
-                elements.dalleStyleGroup.style.display = 'none';
+                icon = '<i class="fas fa-info-circle"></i>';
             }
             
-            updateModelInfo();
-        }
-        
-        // Update model information
-        function updateModelInfo() {
-            const model = elements.modelSelect.value;
-            elements.modelInfo.textContent = modelInfo[model] || 'No information available for this model.';
-        }
-        
-        // Toggle advanced options
-        function toggleAdvancedOptions() {
-            elements.advancedOptions.classList.toggle('show');
-            elements.toggleAdvancedBtn.classList.toggle('active');
-        }
-        
-        // Switch tabs
-        function switchTab(tabName) {
-            elements.tabs.forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.tab === tabName);
-            });
-            
-            elements.tabContents.forEach(content => {
-                content.classList.toggle('active', content.id === `${tabName}Tab`);
-            });
-        }
-        
-        // Submit API key
-        function submitApiKey() {
-            const apiKey = elements.apiKeyInput.value.trim();
-            
-            if (!apiKey.startsWith('sk-')) {
-                showNotification('Please enter a valid OpenAI API key', true);
-                return;
-            }
-            
-            state.currentApiKey = apiKey;
-            elements.apiKeyModal.style.display = 'none';
-            elements.apiKeyInput.value = '';
-            showNotification('API key accepted for this session');
-            
-            if (elements.modelSelect.value === 'DALL-E') {
-                elements.dalleStyleGroup.style.display = 'block';
-            }
-        }
-        
-        // Generate image
-        async function generateImage() {
-            const model = elements.modelSelect.value;
-            const prompt = elements.promptInput.value.trim();
-            
-            if (!prompt) {
-                showNotification('Please enter a prompt', true);
-                return;
-            }
-            
-            if (model === 'DALL-E' && !state.currentApiKey) {
-                elements.apiKeyModal.style.display = 'block';
-                elements.apiKeyInput.focus();
-                return;
-            }
-            
-            // Prepare parameters - always include nologo=true
-            const params = {
-                prompt: prompt,
-                width: elements.widthSelect.value,
-                height: elements.heightSelect.value,
-                model: model.toLowerCase().replace('dall-e', 'dalle'),
-                nologo: true, // This ensures no watermark will be added
-                safe: elements.nsfwFilter.checked // Add NSFW filtering
-            };
-            
-            // Optional parameters
-            if (elements.negativePromptInput.value.trim()) {
-                params.negative_prompt = elements.negativePromptInput.value.trim();
-            }
-            
-            if (elements.seedInput.value) {
-                params.seed = elements.seedInput.value;
-            }
-            
-            if (elements.stepsInput.value) {
-                params.steps = elements.stepsInput.value;
-            }
-            
-            if (elements.cfgScaleInput.value) {
-                params.cfg_scale = elements.cfgScaleInput.value;
-            }
-            
-            // For DALL-E, add API key and style if selected
-            if (model === 'DALL-E') {
-                params.api_key = state.currentApiKey;
-                if (elements.dalleStyleSelect.value !== 'default') {
-                    params.style = elements.dalleStyleSelect.value;
-                }
-            }
-            
-            // Show loading state
-            elements.loadingDiv.style.display = 'block';
-            elements.imageGrid.innerHTML = '';
-            elements.generationInfo.textContent = `Generating with ${model}...`;
-            elements.generateBtn.disabled = true;
-            
-            try {
-                // Build URL for pollinations.ai API
-                const baseUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(params.prompt)}`;
-                const queryParams = [];
-                
-                // Include all parameters except prompt
-                for (const key in params) {
-                    if (key !== 'prompt') {
-                        queryParams.push(`${key}=${encodeURIComponent(params[key])}`);
-                    }
-                }
-                
-                // Ensure nologo=true is always included
-                if (!queryParams.some(param => param.startsWith('nologo='))) {
-                    queryParams.push('nologo=true');
-                }
-                
-                const url = `${baseUrl}?${queryParams.join('&')}`;
-                
-                // Create image element
-                const img = new Image();
-                img.crossOrigin = "Anonymous"; // To avoid CORS issues
-                
-                img.onload = function() {
-                    // Add to history
-                    const generation = {
-                        id: Date.now(),
-                        url: url,
-                        prompt: params.prompt,
-                        negativePrompt: params.negative_prompt || '',
-                        model: model,
-                        width: params.width,
-                        height: params.height,
-                        seed: params.seed || 'random',
-                        date: new Date().toLocaleString(),
-                        steps: params.steps || 'default',
-                        cfgScale: params.cfg_scale || 'default',
-                        style: params.style || 'default',
-                        safeFilter: params.safe
-                    };
-                    
-                    state.generationHistory.unshift(generation);
-                    saveHistory();
-                    renderHistory();
-                    
-                    // Display image
-                    displayGeneratedImage(generation);
-                    
-                    elements.loadingDiv.style.display = 'none';
-                    elements.generateBtn.disabled = false;
-                    showNotification('Image generated successfully!');
-                };
-                
-                img.onerror = function() {
-                    elements.loadingDiv.style.display = 'none';
-                    elements.generateBtn.disabled = false;
-                    
-                    if (params.safe) {
-                        showNotification('Generation blocked - content may violate safety guidelines', true);
-                    } else {
-                        showNotification('Failed to generate image. Please try again.', true);
-                    }
-                    
-                    if (model === 'DALL-E') {
-                        showNotification('For DALL·E 3, please check your API key is valid', true);
-                    }
-                };
-                
-                img.src = url;
-                
-            } catch (error) {
-                console.error('Generation error:', error);
-                elements.loadingDiv.style.display = 'none';
-                elements.generateBtn.disabled = false;
-                showNotification('An error occurred during generation', true);
-            }
-        }
-        
-        // Display generated image
-        function displayGeneratedImage(generation) {
-            const imageCard = document.createElement('div');
-            imageCard.className = 'image-container';
-            if (state.isTouchDevice) imageCard.classList.add('touch-active');
-            imageCard.dataset.id = generation.id;
-            
-            imageCard.innerHTML = `
-                <div class="image-zoom-actions">
-                    <button class="zoom-btn" onclick="zoomImage(this.parentElement.parentElement, 0.1)" title="Zoom In">
-                        <i class="fas fa-search-plus"></i>
-                    </button>
-                    <button class="zoom-btn" onclick="zoomImage(this.parentElement.parentElement, -0.1)" title="Zoom Out">
-                        <i class="fas fa-search-minus"></i>
-                    </button>
-                    <button class="zoom-btn" onclick="resetImageZoom(this.parentElement.parentElement)" title="Reset Zoom">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-                <img src="${generation.url}" alt="Generated image">
-                <div class="image-actions">
-                    <button class="action-btn" onclick="saveGeneration(${generation.id})">
-                        <i class="fas fa-save"></i> Save
-                    </button>
-                    <button class="action-btn" onclick="showImageDetails(${generation.id})">
-                        <i class="fas fa-info-circle"></i> Details
-                    </button>
-                    <button class="action-btn" onclick="downloadImage('${generation.url}', 'ai-image-${generation.id}.png')">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                </div>
+            logEntry.innerHTML = `
+                <span style="color: ${type === 'error' ? 'var(--error)' : type === 'success' ? 'var(--success)' : 'var(--primary)'}">
+                    ${icon} [${timestamp}] ${message}
+                </span>
             `;
             
-            // Add touch event listeners for new image
-            if (state.isTouchDevice) {
-                const buttons = imageCard.querySelectorAll('button');
-                buttons.forEach(btn => {
-                    btn.addEventListener('touchstart', (e) => {
-                        e.stopPropagation(); // Prevent triggering the container's click event
-                    });
-                });
-            }
+            consoleContent.appendChild(logEntry);
+            consoleContent.scrollTop = consoleContent.scrollHeight;
             
-            elements.imageGrid.prepend(imageCard);
+            // Update counter
+            logCount++;
+            document.getElementById('logCounter').textContent = `${logCount} pesan`;
         }
-        
-        // Zoom image
-        function zoomImage(container, amount) {
-            const img = container.querySelector('img');
-            if (!img.style.transform) {
-                img.style.transform = 'scale(1)';
-            }
-            
-            const currentScale = parseFloat(img.style.transform.replace('scale(', '').replace(')', '')) || 1;
-            const newScale = Math.max(0.5, Math.min(3, currentScale + amount));
-            img.style.transform = `scale(${newScale})`;
-            img.style.transformOrigin = 'center center';
-            img.style.transition = 'transform 0.3s ease';
-        }
-        
-        // Toggle image zoom
-        function toggleImageZoom(container) {
-            if (container.classList.contains('zoomed')) {
-                resetImageZoom(container);
-            } else {
-                container.classList.add('zoomed');
-                state.currentImageZoom = container;
-                document.body.style.overflow = 'hidden';
-            }
-        }
-        
-        // Reset image zoom
-        function resetImageZoom(container) {
-            container.classList.remove('zoomed');
-            state.currentImageZoom = null;
-            document.body.style.overflow = '';
-        }
-        
-        // Save to history
-        function saveHistory() {
-            localStorage.setItem('aiImageHistory', JSON.stringify(state.generationHistory));
-        }
-        
-        // Save to saved items
-        function saveGeneration(id) {
-            const generation = state.generationHistory.find(item => item.id === id);
-            if (generation && !state.savedGenerations.some(item => item.id === id)) {
-                state.savedGenerations.unshift(generation);
-                localStorage.setItem('aiImageSaved', JSON.stringify(state.savedGenerations));
-                renderSaved();
-                showNotification('Image saved to your collection');
-            }
-        }
-        
-        // Render history
-        function renderHistory() {
-            elements.historyList.innerHTML = '';
-            
-            if (state.generationHistory.length === 0) {
-                elements.historyList.innerHTML = '<p>No generation history yet.</p>';
-                return;
-            }
-            
-            state.generationHistory.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                historyItem.dataset.id = item.id;
-                historyItem.onclick = () => showImageDetails(item.id);
-                
-                historyItem.innerHTML = `
-                    <img src="${item.url}" class="history-thumbnail" alt="Thumbnail">
-                    <div class="history-prompt">${item.prompt.substring(0, 50)}${item.prompt.length > 50 ? '...' : ''}</div>
-                    <div class="history-date">${item.date}</div>
-                `;
-                
-                elements.historyList.appendChild(historyItem);
-            });
-        }
-        
-        // Render saved items
-        function renderSaved() {
-            elements.savedList.innerHTML = '';
-            
-            if (state.savedGenerations.length === 0) {
-                elements.savedList.innerHTML = '<p>No saved images yet.</p>';
-                return;
-            }
-            
-            state.savedGenerations.forEach(item => {
-                const savedItem = document.createElement('div');
-                savedItem.className = 'history-item';
-                savedItem.dataset.id = item.id;
-                savedItem.onclick = () => showImageDetails(item.id);
-                
-                savedItem.innerHTML = `
-                    <img src="${item.url}" class="history-thumbnail" alt="Thumbnail">
-                    <div class="history-prompt">${item.prompt.substring(0, 50)}${item.prompt.length > 50 ? '...' : ''}</div>
-                    <div class="history-date">${item.date}</div>
-                `;
-                
-                elements.savedList.appendChild(savedItem);
-            });
-        }
-        
-        // Show image details
-        function showImageDetails(id) {
-            let generation;
-            
-            // Check history first
-            generation = state.generationHistory.find(item => item.id === id);
-            
-            // If not found in history, check saved
-            if (!generation) {
-                generation = state.savedGenerations.find(item => item.id === id);
-            }
-            
-            if (generation) {
-                elements.modalImage.src = generation.url;
-                elements.modalPrompt.textContent = generation.prompt;
-                elements.modalNegativePrompt.textContent = generation.negativePrompt || 'None';
-                elements.modalModel.textContent = generation.model;
-                elements.modalSize.textContent = `${generation.width} × ${generation.height}px`;
-                elements.modalSeed.textContent = generation.seed;
-                elements.modalDate.textContent = generation.date;
-                elements.modalStyle.textContent = generation.style || 'Default';
-                
-                // Store current generation for download
-                state.currentGeneration = generation;
-                
-                elements.imageDetailsModal.style.display = 'block';
-            }
-        }
-        
-        // Show notification
-        function showNotification(message, isError = false) {
-            elements.notificationMessage.textContent = message;
-            elements.notification.className = `notification ${isError ? 'error' : ''}`;
-            elements.notification.classList.add('show');
-            
-            setTimeout(() => {
-                elements.notification.classList.remove('show');
-            }, 3000);
-        }
-        
-        // Toggle dark mode
-        function toggleDarkMode() {
-            state.darkMode = !state.darkMode;
-            document.body.classList.toggle('dark-mode', state.darkMode);
-            localStorage.setItem('darkMode', state.darkMode);
-            
-            if (state.darkMode) {
-                elements.darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
-            } else {
-                elements.darkModeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
-            }
-        }
-        
-        // Clear prompt
-        function clearPrompt() {
-            elements.promptInput.value = '';
-            elements.promptInput.focus();
-            showNotification('Prompt cleared');
-        }
-        
-        // Enhanced prompt using Pollinations Text API
-        async function enhancePrompt() {
-            const currentPrompt = elements.promptInput.value.trim();
-            if (!currentPrompt) {
-                showNotification('Please enter a prompt first', true);
-                return;
-            }
 
+        // List model AI yang tersedia
+        const AI_MODELS = [
+            { "name": "openai", "description": "OpenAI GPT-4o-mini", "provider": "Azure", "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "openai-large", "description": "OpenAI GPT-4.1", "provider": "Azure", "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "qwen-coder", "description": "Qwen 2.5 Coder 32B", "provider": "Scaleway", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "llama", "description": "Llama 3.3 70B", "provider": "Cloudflare", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "llamascout", "description": "Llama 4 Scout 17B", "provider": "Cloudflare", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "mistral", "description": "Mistral Small 3", "provider": "Scaleway", "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "unity", "description": "Unity Mistral Large", "provider": "Scaleway", "uncensored": true, "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "midijourney", "description": "Midijourney", "provider": "Azure", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "rtist", "description": "Rtist", "provider": "Azure", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "searchgpt", "description": "SearchGPT", "provider": "Azure", "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "evil", "description": "Evil", "provider": "Scaleway", "uncensored": true, "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "deepseek-reasoning", "description": "DeepSeek-R1 Distill Qwen 32B", "reasoning": true, "provider": "Cloudflare", "aliases": "deepseek-r1", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "deepseek-reasoning-large", "description": "DeepSeek R1 - Llama 70B", "reasoning": true, "provider": "Scaleway", "aliases": "deepseek-r1-llama", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "llamalight", "description": "Llama 3.1 8B Instruct", "provider": "Cloudflare", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "phi", "description": "Phi-4 Instruct", "provider": "Cloudflare", "input_modalities": [ "text", "image", "audio" ], "output_modalities": [ "text" ], "vision": true, "audio": true },
+            { "name": "llama-vision", "description": "Llama 3.2 11B Vision", "provider": "Cloudflare", "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "pixtral", "description": "Pixtral 12B", "provider": "Scaleway", "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "hormoz", "description": "Hormoz 8b", "provider": "Modal", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "hypnosis-tracy", "description": "Hypnosis Tracy 7B", "provider": "Azure", "input_modalities": [ "text", "audio" ], "output_modalities": [ "audio", "text" ], "vision": false, "audio": true },
+            { "name": "mistral-roblox", "description": "Mistral Roblox on Scaleway", "provider": "Scaleway", "uncensored": true, "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "roblox-rp", "description": "Roblox Roleplay Assistant", "provider": "Azure", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "deepseek", "description": "DeepSeek-V3", "provider": "DeepSeek", "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "sur", "description": "Sur AI Assistant (Mistral)", "provider": "Scaleway", "input_modalities": [ "text", "image" ], "output_modalities": [ "text" ], "vision": true, "audio": false },
+            { "name": "llama-scaleway", "description": "Llama (Scaleway)", "provider": "Scaleway", "uncensored": true, "input_modalities": [ "text" ], "output_modalities": [ "text" ], "vision": false, "audio": false },
+            { "name": "openai-audio", "description": "OpenAI GPT-4o-audio-preview", "voices": [ "alloy", "echo", "fable", "onyx", "nova", "shimmer", "coral", "verse", "ballad", "ash", "sage", "amuch", "dan" ], "provider": "Azure", "input_modalities": [ "text", "image", "audio" ], "output_modalities": [ "audio", "text" ], "vision": true, "audio": true }
+        ];
+
+        // Fungsi untuk mendapatkan icon berdasarkan provider
+        function getProviderIcon(provider) {
+            const providerIcons = {
+                "Azure": "fab fa-microsoft",
+                "Scaleway": "fas fa-server",
+                "Cloudflare": "fas fa-cloud",
+                "Modal": "fas fa-cube",
+                "DeepSeek": "fas fa-search"
+            };
+            return providerIcons[provider] || "fas fa-robot";
+        }
+
+        // Fungsi untuk menampilkan informasi model
+        function showModelInfo() {
+            const modelInfoDiv = document.getElementById('modelInfo');
+            modelInfoDiv.innerHTML = '';
+            
+            // Pilih 2-3 model secara acak
+            const shuffledModels = [...AI_MODELS].sort(() => 0.5 - Math.random());
+            const selectedModels = shuffledModels.slice(0, Math.floor(Math.random() * 2) + 2);
+            
+            modelInfoDiv.innerHTML = '<span>Didukung oleh:</span>';
+            
+            selectedModels.forEach(model => {
+                const modelTag = document.createElement('div');
+                modelTag.className = 'model-tag tooltip';
+                
+                // Buat teks modalitas
+                let modalitiesText = `Input: ${model.input_modalities.join(", ")} | Output: ${model.output_modalities.join(", ")}`;
+                if (model.vision) modalitiesText += " | Vision";
+                if (model.audio) modalitiesText += " | Audio";
+                if (model.uncensored) modalitiesText += " | Unfiltered";
+                
+                modelTag.innerHTML = `
+                    <i class="${getProviderIcon(model.provider)}"></i>
+                    <span>${model.name}</span>
+                    <span class="tooltiptext">
+                        <strong>${model.description}</strong><br>
+                        Provider: ${model.provider}<br>
+                        ${modalitiesText}
+                    </span>
+                `;
+                modelInfoDiv.appendChild(modelTag);
+            });
+        }
+
+        // Fungsi untuk menghasilkan contoh acak
+        async function generateRandomExamples() {
+            const examplePrompts = [
+                "Berikan 4 contoh pertanyaan menarik tentang teknologi",
+                "Buatkan 4 ide pertanyaan umum tentang kehidupan sehari-hari",
+                "Generate 4 pertanyaan populer tentang kesehatan dan kebugaran",
+                "Buat 4 contoh pertanyaan menarik tentang pendidikan",
+                "Berikan 4 ide pertanyaan random yang bermanfaat"
+            ];
+
+            const randomPrompt = examplePrompts[Math.floor(Math.random() * examplePrompts.length)];
+            const encodedPrompt = encodeURIComponent(randomPrompt);
+            
             try {
-                // Show loading state
-                elements.enhancePromptBtn.disabled = true;
-                elements.enhancePromptBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
-                
-                // Prepare the enhancement instruction
-                const enhancementInstruction = `Improve this AI image generation prompt to make it more descriptive and effective. 
-                Add relevant details about style, composition, lighting, and other important elements. 
-                Return only the enhanced prompt, no additional commentary.
-                
-                Original prompt: "${currentPrompt}"
-                
-                Enhanced prompt:`;
-                
-                // Encode the prompt for URL
-                const encodedPrompt = encodeURIComponent(enhancementInstruction);
-                
-                // Call Pollinations Text API
                 const response = await fetch(`https://text.pollinations.ai/${encodedPrompt}`);
                 
                 if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
+                    throw new Error(`Error API: ${response.status}`);
                 }
                 
-                const enhancedPrompt = await response.text();
-                
-                // Clean up the response
-                let cleanedPrompt = enhancedPrompt.trim();
-                cleanedPrompt = cleanedPrompt.replace(/^Enhanced prompt:/i, '').trim();
-                cleanedPrompt = cleanedPrompt.replace(/"/g, '').trim();
-
-                if (!cleanedPrompt) {
-                    throw new Error('Empty response from API');
-                }
-                
-                // Update the prompt input
-                elements.promptInput.value = cleanedPrompt;
-                showNotification('Prompt enhanced successfully!');
-                
+                const data = await response.text();
+                return data.split('\n')
+                          .filter(line => line.trim().length > 0)
+                          .map(line => line.replace(/^\d+\.\s*/, '').trim())
+                          .slice(0, 4);
             } catch (error) {
-                console.error('Prompt enhancement failed:', error);
-                
-                // Fallback to manual enhancement if API fails
-                const manualEnhancements = [
-                    "highly detailed, 4K resolution, ultra HD, professional photography",
-                    "digital art, trending on artstation, cinematic lighting",
-                    "concept art, intricate details, realistic textures",
-                    "fantasy art, epic composition, vibrant colors",
-                    "sci-fi, futuristic, cyberpunk aesthetic, neon lights"
+                console.error("Error generating examples:", error);
+                // Fallback examples if API fails
+                return [
+                    "Jelaskan AI seperti ke anak 5 tahun",
+                    "Bahasa pemrograman terbaik di 2024",
+                    "Cara membuat pasta yang sempurna",
+                    "Manfaat olahraga teratur"
                 ];
-                
-                const randomEnhancement = manualEnhancements[Math.floor(Math.random() * manualEnhancements.length)];
-                elements.promptInput.value = `${currentPrompt}, ${randomEnhancement}`;
-                
-                showNotification('Used fallback enhancement (API failed)', true);
-            } finally {
-                // Reset button state
-                elements.enhancePromptBtn.disabled = false;
-                elements.enhancePromptBtn.innerHTML = '<i class="fas fa-magic"></i> Enhance';
             }
         }
-        
-        // Analyze prompt
-        function analyzePrompt() {
-            const prompt = elements.promptInput.value.trim();
+
+        // Fungsi untuk menampilkan contoh
+        async function loadExamples() {
+            const examplesContainer = document.getElementById('exampleChipsContainer');
+            const examples = await generateRandomExamples();
+            
+            examplesContainer.innerHTML = '';
+            
+            const icons = [
+                'fas fa-child',
+                'fas fa-code',
+                'fas fa-utensils',
+                'fas fa-running',
+                'fas fa-book',
+                'fas fa-flask',
+                'fas fa-globe',
+                'fas fa-heart'
+            ];
+            
+            examples.forEach((example, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'example-chip';
+                chip.innerHTML = `
+                    <i class="${icons[index % icons.length]}"></i> ${example}
+                `;
+                chip.addEventListener('click', () => useExample(example));
+                examplesContainer.appendChild(chip);
+            });
+            
+            logToConsole('Contoh pertanyaan acak telah dihasilkan');
+        }
+
+        // Contoh Penggunaan
+        function useExample(exampleText) {
+            const promptInput = document.getElementById('prompt');
+            promptInput.value = exampleText;
+            promptInput.focus();
+            document.getElementById('clearInput').style.display = 'block';
+            logToConsole(`Contoh dimuat: "${exampleText}"`);
+        }
+
+        // Animasi Progress Bar
+        function animateProgressBar(duration) {
+            const progressBar = document.getElementById('progressBar');
+            const progressContainer = document.getElementById('progressContainer');
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            
+            let start = null;
+            const step = (timestamp) => {
+                if (!start) start = timestamp;
+                const progress = Math.min((timestamp - start) / duration, 1);
+                progressBar.style.width = `${progress * 100}%`;
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            
+            window.requestAnimationFrame(step);
+        }
+
+        // Fungsi Generasi Utama
+        async function generateText() {
+            const prompt = document.getElementById('prompt').value.trim();
             if (!prompt) {
-                showNotification('Please enter a prompt first', true);
+                logToConsole('Error: Masukkan pertanyaan terlebih dahulu', 'error');
                 return;
             }
+
+            const submitBtn = document.getElementById('submit');
+            const buttonText = document.getElementById('button-text');
+            const buttonIcon = submitBtn.querySelector('i');
+            const responseDiv = document.getElementById('response');
+            const metaDiv = document.getElementById('response-meta');
             
-            // Simple analysis - in a real app you might use an API for this
-            const wordCount = prompt.split(/\s+/).length;
-            const lines = prompt.split('\n').length;
-            const hasDetails = prompt.includes(',') || prompt.includes(';');
-            const hasAdjectives = (prompt.match(/\b(highly detailed|beautiful|stunning|vibrant|epic)\b/gi) || []).length;
+            // Tampilkan status loading
+            submitBtn.disabled = true;
+            buttonText.textContent = 'Memproses';
+            buttonIcon.className = 'fas fa-spinner fa-spin';
+            responseDiv.innerHTML = '<div class="loading"></div> Sedang memproses permintaan Anda...';
+            responseDiv.classList.remove('empty');
+            metaDiv.textContent = '';
             
-            elements.analysisResults.innerHTML = `
-                <h3>Prompt Analysis Results</h3>
-                <div style="margin-top: 15px;">
-                    <p><strong>Word Count:</strong> ${wordCount}</p>
-                    <p><strong>Lines:</strong> ${lines}</p>
-                    <p><strong>Has Details:</strong> ${hasDetails ? 'Yes' : 'No'}</p>
-                    <p><strong>Adjectives Found:</strong> ${hasAdjectives}</p>
-                </div>
-                <div style="margin-top: 20px;">
-                    <h4>Suggestions:</h4>
-                    <ul style="margin-left: 20px;">
-                        <li>${wordCount < 10 ? 'Consider adding more descriptive words' : 'Good length for a prompt'}</li>
-                        <li>${!hasDetails ? 'Try adding specific details separated by commas' : 'Good use of detailed descriptions'}</li>
-                        <li>${hasAdjectives < 3 ? 'Consider adding more descriptive adjectives' : 'Good use of descriptive language'}</li>
-                    </ul>
-                </div>
-            `;
+            // Mulai progress bar
+            animateProgressBar(2000);
             
-            elements.analysisModal.style.display = 'block';
-        }
-        
-        // Apply style preset
-        function applyStylePreset(presetName) {
-            const preset = stylePresets[presetName];
-            if (!preset) return;
-            
-            elements.promptInput.value = preset.prompt;
-            elements.negativePromptInput.value = preset.negative;
-            elements.widthSelect.value = preset.width;
-            elements.heightSelect.value = preset.height;
-            
-            showNotification(`"${presetName}" style preset applied`);
-        }
-        
-        // Confirm clear all history
-        function confirmClearAll() {
-            if (confirm('Are you sure you want to clear all generation history? This cannot be undone.')) {
-                state.generationHistory = [];
-                saveHistory();
-                renderHistory();
-                showNotification('All generation history cleared');
-            }
-        }
-        
-        // Export history
-        function exportHistory() {
-            if (state.generationHistory.length === 0) {
-                showNotification('No history to export', true);
-                return;
-            }
-            
-            const data = JSON.stringify(state.generationHistory, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ai-image-history-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            showNotification('History exported successfully');
-        }
-        
-        // Import history
-        function importHistory() {
+            logToConsole(`Mengirim permintaan: "${prompt}"`);
+
             try {
-                const data = JSON.parse(elements.importData.value);
-                if (!Array.isArray(data)) {
-                    showNotification('Invalid history data format', true);
-                    return;
+                const startTime = performance.now();
+                const encodedPrompt = encodeURIComponent(prompt);
+                
+                // Simulasi progres (ganti dengan fetch sebenarnya)
+                for (let i = 0; i < 5; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    logToConsole(`Memproses... (langkah ${i + 1}/5)`);
                 }
                 
-                state.generationHistory = data;
-                saveHistory();
-                renderHistory();
-                elements.importModal.style.display = 'none';
-                elements.importData.value = '';
-                showNotification('History imported successfully');
+                // Panggilan API sebenarnya
+                const response = await fetch(`https://text.pollinations.ai/${encodedPrompt}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error API: ${response.status}`);
+                }
+                
+                const data = await response.text();
+                const endTime = performance.now();
+                const responseTime = endTime - startTime;
+                
+                // Tampilkan hasil
+                responseDiv.innerHTML = data.replace(/\n/g, '<br>');
+                
+                metaDiv.innerHTML = `
+                    <span>Dihasilkan dalam ${responseTime.toFixed(0)}ms</span>
+                    <span>${data.length} karakter</span>
+                `;
+                
+                // Tampilkan info model
+                showModelInfo();
+                
+                logToConsole(`Respon diterima dalam ${responseTime.toFixed(0)}ms`, 'success');
+                
             } catch (error) {
-                showNotification('Failed to import history. Invalid JSON data.', true);
-                console.error('Import error:', error);
+                responseDiv.innerHTML = `<p style="color: var(--error);"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
+                logToConsole(`Error: ${error.message}`, 'error');
+                console.error("Error API:", error);
+            } finally {
+                submitBtn.disabled = false;
+                buttonText.innerHTML = 'Hasilkan Jawaban';
+                buttonIcon.className = 'fas fa-magic';
+                document.getElementById('progressContainer').style.display = 'none';
             }
         }
-        
-        // Copy prompt to clipboard
-        function copyPromptToClipboard() {
-            if (!state.currentGeneration) return;
-            
-            navigator.clipboard.writeText(state.currentGeneration.prompt)
-                .then(() => showNotification('Prompt copied to clipboard'))
-                .catch(() => showNotification('Failed to copy prompt', true));
-        }
-        
-        // Global functions
-        window.downloadImage = function(url, filename) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename || 'ai-generated-image.png';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        };
-        
-        window.downloadCurrentModalImage = function() {
-            if (state.currentGeneration) {
-                downloadImage(
-                    state.currentGeneration.url, 
-                    `ai-image-${state.currentGeneration.id}.png`
-                );
+
+        // Event listener untuk tombol submit
+        document.getElementById('submit').addEventListener('click', generateText);
+
+        // Tekan Enter untuk mengirim
+        document.getElementById('prompt').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateText();
             }
-        };
-        
-        window.saveGeneration = saveGeneration;
-        window.showImageDetails = showImageDetails;
-        window.zoomImage = zoomImage;
-        window.resetImageZoom = resetImageZoom;
-        window.applyStylePreset = applyStylePreset;
-        window.copyPromptToClipboard = copyPromptToClipboard;
-        
-        // Initialize the app
-        init();
+        });
+
+        // Muat contoh acak saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            loadExamples();
+            logToConsole('Sistem siap digunakan');
+        });
     </script>
 </body>
 </html>
