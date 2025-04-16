@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    	<meta name="description" content="Aplikasi web Generator Teks AI dengan 25+ model canggih. Fitur mode gelap, fokus, riwayat percakapan, dan contoh otomatis untuk membantu berbagai kebutuhan kreatif Anda.">
-    		<!-- Default (Light Mode) -->
-<meta name="theme-color" content="#4361ee" media="(prefers-color-scheme: light)">
-
-<!-- Dark Mode -->
-<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
     <title>Generator Teks AI</title>
+    <meta name="description" content="Generator Teks AI canggih dengan berbagai model AI. Hasilkan jawaban instan dengan mode fokus untuk konsentrasi maksimal.">
+    <meta name="theme-color" content="#4361ee" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -28,6 +25,7 @@
             --error: #ff3333;
             --warning: #ffcc00;
             --focus-bg: rgba(67, 97, 238, 0.1);
+            --focus-input-height: 150px;
         }
 
         [data-theme="dark"] {
@@ -158,13 +156,30 @@
 
         #prompt {
             width: 100%;
-            padding: 1rem 3rem 1rem 1rem;
+            min-height: 50px;
+            height: auto;
+            padding: 1rem;
             border: 2px solid var(--border);
             border-radius: 8px;
             font-size: 1rem;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             background-color: var(--card-bg);
             color: var(--text-color);
+            resize: none;
+            overflow-y: hidden;
+            line-height: 1.6;
+        }
+
+        body.focus-mode #prompt {
+            min-height: var(--focus-input-height);
+            height: var(--focus-input-height);
+            font-size: 1.1rem;
+            padding: 1.5rem;
+            resize: vertical;
+        }
+
+        body.focus-mode .input-group {
+            margin-bottom: 2rem;
         }
 
         #prompt:focus {
@@ -176,8 +191,7 @@
         .clear-input {
             position: absolute;
             right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 10px;
             background: none;
             border: none;
             color: var(--gray);
@@ -454,7 +468,6 @@
             opacity: 1;
         }
 
-        /* History styles */
         .history-container {
             max-height: 200px;
             overflow-y: auto;
@@ -504,7 +517,6 @@
             text-decoration: underline;
         }
 
-        /* Model selector */
         .model-selector {
             margin-bottom: 1rem;
         }
@@ -527,7 +539,6 @@
             gap: 0.5rem;
         }
 
-        /* Status indicator */
         .status-indicator {
             display: flex;
             align-items: center;
@@ -556,7 +567,6 @@
             background-color: var(--error);
         }
 
-        /* Focus mode indicator */
         .focus-indicator {
             position: fixed;
             bottom: 1rem;
@@ -570,7 +580,6 @@
             z-index: 100;
         }
 
-        /* Input validation */
         .input-error {
             color: var(--error);
             font-size: 0.8rem;
@@ -584,7 +593,6 @@
     </style>
 </head>
 <body>
-    <!-- Control buttons -->
     <button class="focus-toggle" id="focusToggle" title="Mode Fokus">
         <i class="fas fa-crosshairs" id="focusIcon"></i>
     </button>
@@ -600,13 +608,11 @@
             <h1><i class="fas fa-robot"></i> Generator Teks AI</h1>
         </div>
 
-        <!-- Status indicator -->
         <div class="status-indicator" id="statusIndicator">
             <div class="status-dot" id="statusDot"></div>
             <span id="statusText">Menyiapkan sistem...</span>
         </div>
 
-        <!-- Model selector -->
         <div class="model-selector">
             <div class="model-selector-header">
                 <div class="model-selector-title">
@@ -618,7 +624,7 @@
         </div>
         
         <div class="input-group">
-            <input type="text" id="prompt" placeholder="Tanyakan apa saja..." autocomplete="off">
+            <textarea id="prompt" placeholder="Tanyakan apa saja..." autocomplete="off" rows="1"></textarea>
             <button class="clear-input" id="clearInput" title="Hapus teks">
                 <i class="fas fa-times"></i>
             </button>
@@ -640,7 +646,6 @@
             </div>
         </div>
 
-        <!-- History container -->
         <div class="history-container" id="historyContainer">
             <div class="history-header">
                 <span>Riwayat Percakapan</span>
@@ -706,6 +711,7 @@
         const focusToggle = document.getElementById('focusToggle');
         const focusIcon = document.getElementById('focusIcon');
         const focusIndicator = document.getElementById('focusIndicator');
+        const promptInput = document.getElementById('prompt');
         let focusMode = localStorage.getItem('focusMode') === 'true';
 
         function applyFocusMode() {
@@ -714,23 +720,32 @@
                 focusIcon.className = 'fas fa-crosshairs';
                 focusIcon.style.transform = 'rotate(0deg)';
                 focusIndicator.style.display = 'flex';
+                promptInput.style.minHeight = '150px';
+                promptInput.style.height = '150px';
+                promptInput.focus();
                 localStorage.setItem('focusMode', true);
             } else {
                 document.body.classList.remove('focus-mode');
                 focusIcon.className = 'fas fa-expand';
                 focusIcon.style.transform = 'rotate(0deg)';
                 focusIndicator.style.display = 'none';
+                promptInput.style.minHeight = '';
+                promptInput.style.height = 'auto';
                 localStorage.setItem('focusMode', false);
             }
+            logToConsole(`Mode fokus ${focusMode ? 'diaktifkan' : 'dinonaktifkan'}`);
         }
 
         focusToggle.addEventListener('click', () => {
             focusMode = !focusMode;
             applyFocusMode();
-            logToConsole(`Mode fokus ${focusMode ? 'diaktifkan' : 'dinonaktifkan'}`);
         });
 
-        applyFocusMode();
+        // Auto-resize textarea
+        promptInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
 
         // Status Indicator
         const statusDot = document.getElementById('statusDot');
@@ -1270,7 +1285,8 @@
 
         // Tekan Enter untuk mengirim
         document.getElementById('prompt').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 generateText();
             }
         });
@@ -1298,13 +1314,6 @@
             updateStatus('error', 'Tidak ada koneksi internet');
             logToConsole('Peringatan: Tidak ada koneksi internet', 'warning');
         });
-        
-        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-if (darkMode) {
-  themeColorMeta.setAttribute('content', '#121212');
-} else {
-  themeColorMeta.setAttribute('content', '#4361ee');
-}
     </script>
 </body>
 </html>
