@@ -20,6 +20,8 @@
             --console-text: #212529;
             --success: #4bb543;
             --error: #ff3333;
+            --warning: #ffcc00;
+            --focus-bg: rgba(67, 97, 238, 0.1);
         }
 
         [data-theme="dark"] {
@@ -36,6 +38,8 @@
             --console-text: #e9ecef;
             --success: #5cb85c;
             --error: #ff6b6b;
+            --warning: #ffcc00;
+            --focus-bg: rgba(90, 125, 255, 0.2);
         }
 
         * {
@@ -52,6 +56,10 @@
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
             position: relative;
+        }
+
+        body.focus-mode {
+            background-color: var(--focus-bg);
         }
 
         .container {
@@ -78,16 +86,22 @@
                 padding: 0.8rem 2.5rem 0.8rem 0.8rem;
             }
 
-            .theme-toggle {
+            .theme-toggle, .focus-toggle {
                 top: 0.5rem;
+            }
+
+            .theme-toggle {
                 right: 0.5rem;
+            }
+
+            .focus-toggle {
+                right: 3rem;
             }
         }
 
-        .theme-toggle {
+        .theme-toggle, .focus-toggle {
             position: fixed;
             top: 1rem;
-            right: 1rem;
             background: var(--primary);
             color: white;
             border: none;
@@ -103,7 +117,15 @@
             z-index: 100;
         }
 
-        .theme-toggle:hover {
+        .theme-toggle {
+            right: 1rem;
+        }
+
+        .focus-toggle {
+            right: 4rem;
+        }
+
+        .theme-toggle:hover, .focus-toggle:hover {
             background: var(--primary-dark);
             transform: rotate(15deg);
         }
@@ -170,6 +192,8 @@
         .button-container {
             margin-bottom: 0.5rem;
             position: relative;
+            display: flex;
+            gap: 0.5rem;
         }
 
         button#submit {
@@ -341,6 +365,11 @@
             color: white;
         }
 
+        .badge-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
         .loading-chips {
             display: flex;
             gap: 0.5rem;
@@ -378,9 +407,15 @@
             display: flex;
             align-items: center;
             gap: 0.3rem;
+            cursor: pointer;
         }
 
         .model-tag:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .model-tag.active {
             background-color: var(--primary);
             color: white;
         }
@@ -412,17 +447,168 @@
             visibility: visible;
             opacity: 1;
         }
+
+        /* History styles */
+        .history-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem;
+            display: none;
+        }
+
+        .history-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background-color: var(--focus-bg);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .history-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .history-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Model selector */
+        .model-selector {
+            margin-bottom: 1rem;
+        }
+
+        .model-selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .model-selector-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .model-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--gray);
+        }
+
+        .status-dot.connected {
+            background-color: var(--success);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-dot.warning {
+            background-color: var(--warning);
+        }
+
+        .status-dot.error {
+            background-color: var(--error);
+        }
+
+        /* Focus mode indicator */
+        .focus-indicator {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: none;
+            z-index: 100;
+        }
+
+        /* Input validation */
+        .input-error {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .input-error.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <!-- Dark mode toggle moved outside container -->
+    <!-- Control buttons -->
+    <button class="focus-toggle" id="focusToggle" title="Mode Fokus">
+        <i class="fas fa-crosshairs" id="focusIcon"></i>
+    </button>
     <button class="theme-toggle" id="themeToggle" title="Ubah tema">
         <i class="fas fa-moon" id="themeIcon"></i>
     </button>
+    <div class="focus-indicator" id="focusIndicator">
+        <i class="fas fa-crosshairs"></i> Mode Fokus Aktif
+    </div>
 
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-robot"></i> Generator Teks AI</h1>
+        </div>
+
+        <!-- Status indicator -->
+        <div class="status-indicator" id="statusIndicator">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Menyiapkan sistem...</span>
+        </div>
+
+        <!-- Model selector -->
+        <div class="model-selector">
+            <div class="model-selector-header">
+                <div class="model-selector-title">
+                    <i class="fas fa-microchip"></i> Model AI:
+                </div>
+                <div class="model-info" id="modelInfo"></div>
+            </div>
+            <div class="model-tags-container" id="modelTagsContainer"></div>
         </div>
         
         <div class="input-group">
@@ -430,6 +616,9 @@
             <button class="clear-input" id="clearInput" title="Hapus teks">
                 <i class="fas fa-times"></i>
             </button>
+            <div class="input-error" id="inputError">
+                <i class="fas fa-exclamation-circle"></i> <span id="errorText"></span>
+            </div>
         </div>
         
         <div class="button-container">
@@ -437,13 +626,27 @@
                 <i class="fas fa-magic"></i>
                 <span id="button-text">Hasilkan Jawaban</span>
             </button>
+            <button id="historyBtn" title="Riwayat Percakapan">
+                <i class="fas fa-history"></i>
+            </button>
             <div class="progress-container" id="progressContainer">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
         </div>
+
+        <!-- History container -->
+        <div class="history-container" id="historyContainer">
+            <div class="history-header">
+                <span>Riwayat Percakapan</span>
+                <div class="history-actions">
+                    <button class="history-btn" id="clearHistoryBtn">Hapus Semua</button>
+                    <button class="history-btn" id="closeHistoryBtn">Tutup</button>
+                </div>
+            </div>
+            <div id="historyItems"></div>
+        </div>
         
         <div class="response-meta" id="response-meta"></div>
-        <div class="model-info" id="modelInfo"></div>
         
         <div class="response-container">
             <div id="response" class="empty">
@@ -488,22 +691,102 @@
         themeToggle.addEventListener('click', () => {
             darkMode = !darkMode;
             applyTheme();
+            logToConsole(`Mode tema diubah ke ${darkMode ? 'gelap' : 'terang'}`);
         });
 
         applyTheme();
+
+        // Focus Mode
+        const focusToggle = document.getElementById('focusToggle');
+        const focusIcon = document.getElementById('focusIcon');
+        const focusIndicator = document.getElementById('focusIndicator');
+        let focusMode = localStorage.getItem('focusMode') === 'true';
+
+        function applyFocusMode() {
+            if (focusMode) {
+                document.body.classList.add('focus-mode');
+                focusIcon.className = 'fas fa-crosshairs';
+                focusIcon.style.transform = 'rotate(0deg)';
+                focusIndicator.style.display = 'flex';
+                localStorage.setItem('focusMode', true);
+            } else {
+                document.body.classList.remove('focus-mode');
+                focusIcon.className = 'fas fa-expand';
+                focusIcon.style.transform = 'rotate(0deg)';
+                focusIndicator.style.display = 'none';
+                localStorage.setItem('focusMode', false);
+            }
+        }
+
+        focusToggle.addEventListener('click', () => {
+            focusMode = !focusMode;
+            applyFocusMode();
+            logToConsole(`Mode fokus ${focusMode ? 'diaktifkan' : 'dinonaktifkan'}`);
+        });
+
+        applyFocusMode();
+
+        // Status Indicator
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        function updateStatus(status, message) {
+            statusDot.className = 'status-dot';
+            
+            switch(status) {
+                case 'connected':
+                    statusDot.classList.add('connected');
+                    statusText.textContent = message || 'Terhubung ke sistem AI';
+                    break;
+                case 'warning':
+                    statusDot.classList.add('warning');
+                    statusText.textContent = message || 'Peringatan: Masalah koneksi';
+                    break;
+                case 'error':
+                    statusDot.classList.add('error');
+                    statusText.textContent = message || 'Error: Tidak terhubung';
+                    break;
+                default:
+                    statusText.textContent = message || 'Status tidak diketahui';
+            }
+            
+            logToConsole(`Status sistem diperbarui: ${status} - ${message || ''}`);
+        }
+
+        // Simulate connection status
+        setTimeout(() => {
+            updateStatus('connected', 'Sistem siap digunakan');
+        }, 1500);
 
         // Fungsi Hapus Input
         document.getElementById('clearInput').addEventListener('click', function() {
             document.getElementById('prompt').value = '';
             document.getElementById('prompt').focus();
             this.style.display = 'none';
+            hideInputError();
             logToConsole('Input teks dihapus');
         });
 
         // Tampilkan tombol hapus saat ada input
         document.getElementById('prompt').addEventListener('input', function() {
             document.getElementById('clearInput').style.display = this.value ? 'block' : 'none';
+            hideInputError();
         });
+
+        // Input validation
+        const inputError = document.getElementById('inputError');
+        const errorText = document.getElementById('errorText');
+
+        function showInputError(message) {
+            inputError.classList.add('show');
+            errorText.textContent = message;
+            document.getElementById('prompt').style.borderColor = 'var(--error)';
+        }
+
+        function hideInputError() {
+            inputError.classList.remove('show');
+            document.getElementById('prompt').style.borderColor = '';
+        }
 
         // Log Sistem
         let logCount = 0;
@@ -564,6 +847,9 @@
             { "name": "openai-audio", "description": "OpenAI GPT-4o-audio-preview", "voices": [ "alloy", "echo", "fable", "onyx", "nova", "shimmer", "coral", "verse", "ballad", "ash", "sage", "amuch", "dan" ], "provider": "Azure", "input_modalities": [ "text", "image", "audio" ], "output_modalities": [ "audio", "text" ], "vision": true, "audio": true }
         ];
 
+        // Selected AI model
+        let selectedModel = localStorage.getItem('selectedModel') || 'openai';
+
         // Fungsi untuk mendapatkan icon berdasarkan provider
         function getProviderIcon(provider) {
             const providerIcons = {
@@ -576,38 +862,99 @@
             return providerIcons[provider] || "fas fa-robot";
         }
 
-        // Fungsi untuk menampilkan informasi model
-        function showModelInfo() {
-            const modelInfoDiv = document.getElementById('modelInfo');
-            modelInfoDiv.innerHTML = '';
+        // Fungsi untuk menampilkan dan memilih model AI
+        function initializeModelSelector() {
+            const modelTagsContainer = document.getElementById('modelTagsContainer');
+            modelTagsContainer.innerHTML = '';
             
-            // Pilih 2-3 model secara acak
-            const shuffledModels = [...AI_MODELS].sort(() => 0.5 - Math.random());
-            const selectedModels = shuffledModels.slice(0, Math.floor(Math.random() * 2) + 2);
+            // Kelompokkan model berdasarkan kategori
+            const modelCategories = {
+                "General": AI_MODELS.filter(model => !model.reasoning && !model.uncensored && !model.audio),
+                "Reasoning": AI_MODELS.filter(model => model.reasoning),
+                "Uncensored": AI_MODELS.filter(model => model.uncensored),
+                "Multimodal": AI_MODELS.filter(model => model.vision || model.audio)
+            };
             
-            modelInfoDiv.innerHTML = '<span>Didukung oleh:</span>';
-            
-            selectedModels.forEach(model => {
-                const modelTag = document.createElement('div');
-                modelTag.className = 'model-tag tooltip';
+            // Buat elemen untuk setiap kategori
+            for (const [category, models] of Object.entries(modelCategories)) {
+                if (models.length === 0) continue;
                 
-                // Buat teks modalitas
-                let modalitiesText = `Input: ${model.input_modalities.join(", ")} | Output: ${model.output_modalities.join(", ")}`;
-                if (model.vision) modalitiesText += " | Vision";
-                if (model.audio) modalitiesText += " | Audio";
-                if (model.uncensored) modalitiesText += " | Unfiltered";
+                const categoryDiv = document.createElement('div');
+                categoryDiv.style.marginBottom = '0.5rem';
                 
-                modelTag.innerHTML = `
-                    <i class="${getProviderIcon(model.provider)}"></i>
-                    <span>${model.name}</span>
-                    <span class="tooltiptext">
-                        <strong>${model.description}</strong><br>
-                        Provider: ${model.provider}<br>
-                        ${modalitiesText}
-                    </span>
-                `;
-                modelInfoDiv.appendChild(modelTag);
+                const categoryTitle = document.createElement('div');
+                categoryTitle.textContent = category;
+                categoryTitle.style.fontSize = '0.8rem';
+                categoryTitle.style.color = 'var(--gray)';
+                categoryTitle.style.marginBottom = '0.3rem';
+                categoryDiv.appendChild(categoryTitle);
+                
+                const tagsDiv = document.createElement('div');
+                tagsDiv.style.display = 'flex';
+                tagsDiv.style.flexWrap = 'wrap';
+                tagsDiv.style.gap = '0.3rem';
+                
+                models.forEach(model => {
+                    const modelTag = document.createElement('div');
+                    modelTag.className = `model-tag tooltip ${model.name === selectedModel ? 'active' : ''}`;
+                    
+                    // Buat teks modalitas
+                    let modalitiesText = `Input: ${model.input_modalities.join(", ")} | Output: ${model.output_modalities.join(", ")}`;
+                    if (model.vision) modalitiesText += " | Vision";
+                    if (model.audio) modalitiesText += " | Audio";
+                    if (model.uncensored) modalitiesText += " | Unfiltered";
+                    
+                    modelTag.innerHTML = `
+                        <i class="${getProviderIcon(model.provider)}"></i>
+                        <span>${model.name}</span>
+                        <span class="tooltiptext">
+                            <strong>${model.description}</strong><br>
+                            Provider: ${model.provider}<br>
+                            ${modalitiesText}
+                        </span>
+                    `;
+                    
+                    modelTag.addEventListener('click', () => {
+                        selectedModel = model.name;
+                        localStorage.setItem('selectedModel', selectedModel);
+                        updateModelTags();
+                        logToConsole(`Model AI dipilih: ${model.name} (${model.description})`);
+                    });
+                    
+                    tagsDiv.appendChild(modelTag);
+                });
+                
+                categoryDiv.appendChild(tagsDiv);
+                modelTagsContainer.appendChild(categoryDiv);
+            }
+            
+            // Tampilkan info model yang dipilih
+            showSelectedModelInfo();
+        }
+
+        function updateModelTags() {
+            const modelTags = document.querySelectorAll('.model-tag');
+            modelTags.forEach(tag => {
+                tag.classList.remove('active');
+                if (tag.querySelector('span').textContent === selectedModel) {
+                    tag.classList.add('active');
+                }
             });
+            showSelectedModelInfo();
+        }
+
+        function showSelectedModelInfo() {
+            const modelInfoDiv = document.getElementById('modelInfo');
+            const selectedModelData = AI_MODELS.find(model => model.name === selectedModel);
+            
+            if (selectedModelData) {
+                modelInfoDiv.innerHTML = `
+                    <div class="model-tag active">
+                        <i class="${getProviderIcon(selectedModelData.provider)}"></i>
+                        <span>${selectedModelData.name}</span>
+                    </div>
+                `;
+            }
         }
 
         // Fungsi untuk menghasilkan contoh acak
@@ -708,13 +1055,132 @@
             window.requestAnimationFrame(step);
         }
 
+        // History management
+        const HISTORY_KEY = 'ai_chat_history';
+        let chatHistory = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+
+        function saveToHistory(prompt, response) {
+            // Batasi riwayat hingga 50 item terbaru
+            if (chatHistory.length >= 50) {
+                chatHistory.shift();
+            }
+            
+            const timestamp = new Date().toISOString();
+            chatHistory.push({
+                prompt,
+                response,
+                timestamp,
+                model: selectedModel
+            });
+            
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
+            renderHistory();
+            logToConsole('Percakapan disimpan ke riwayat');
+        }
+
+        function renderHistory() {
+            const historyItems = document.getElementById('historyItems');
+            historyItems.innerHTML = '';
+            
+            if (chatHistory.length === 0) {
+                historyItems.innerHTML = '<div class="history-item">Tidak ada riwayat percakapan</div>';
+                return;
+            }
+            
+            // Tampilkan dalam urutan terbalik (terbaru pertama)
+            [...chatHistory].reverse().forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const modelData = AI_MODELS.find(m => m.name === item.model) || {};
+                
+                historyItem.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 0.3rem;">${item.prompt}</div>
+                    <div style="font-size: 0.8rem; color: var(--gray); margin-bottom: 0.3rem;">
+                        ${new Date(item.timestamp).toLocaleString()}
+                        <span style="margin-left: 0.5rem; background: var(--border); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem;">
+                            ${modelData.name || item.model}
+                        </span>
+                    </div>
+                    <div style="font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${item.response.replace(/<br>/g, ' ').substring(0, 60)}...
+                    </div>
+                `;
+                
+                historyItem.addEventListener('click', () => {
+                    loadFromHistory(item);
+                });
+                
+                historyItems.appendChild(historyItem);
+            });
+        }
+
+        function loadFromHistory(item) {
+            document.getElementById('prompt').value = item.prompt;
+            document.getElementById('response').innerHTML = item.response;
+            document.getElementById('response').classList.remove('empty');
+            
+            // Update model jika berbeda
+            if (item.model !== selectedModel) {
+                selectedModel = item.model;
+                localStorage.setItem('selectedModel', selectedModel);
+                updateModelTags();
+            }
+            
+            // Update metadata
+            document.getElementById('response-meta').innerHTML = `
+                <span>Diambil dari riwayat</span>
+                <span>${new Date(item.timestamp).toLocaleString()}</span>
+            `;
+            
+            hideHistory();
+            logToConsole(`Memuat percakapan dari riwayat: "${item.prompt}"`);
+        }
+
+        function clearHistory() {
+            chatHistory = [];
+            localStorage.removeItem(HISTORY_KEY);
+            renderHistory();
+            logToConsole('Riwayat percakapan dihapus');
+        }
+
+        function toggleHistory() {
+            const historyContainer = document.getElementById('historyContainer');
+            if (historyContainer.style.display === 'block') {
+                hideHistory();
+            } else {
+                showHistory();
+            }
+        }
+
+        function showHistory() {
+            const historyContainer = document.getElementById('historyContainer');
+            historyContainer.style.display = 'block';
+            renderHistory();
+        }
+
+        function hideHistory() {
+            document.getElementById('historyContainer').style.display = 'none';
+        }
+
         // Fungsi Generasi Utama
         async function generateText() {
             const prompt = document.getElementById('prompt').value.trim();
+            
+            // Validasi input
             if (!prompt) {
+                showInputError('Masukkan pertanyaan terlebih dahulu');
                 logToConsole('Error: Masukkan pertanyaan terlebih dahulu', 'error');
                 return;
             }
+            
+            if (prompt.length > 1000) {
+                showInputError('Pertanyaan terlalu panjang (maksimal 1000 karakter)');
+                logToConsole('Error: Pertanyaan terlalu panjang', 'error');
+                return;
+            }
+            
+            hideInputError();
 
             const submitBtn = document.getElementById('submit');
             const buttonText = document.getElementById('button-text');
@@ -733,7 +1199,7 @@
             // Mulai progress bar
             animateProgressBar(2000);
             
-            logToConsole(`Mengirim permintaan: "${prompt}"`);
+            logToConsole(`Mengirim permintaan ke model ${selectedModel}: "${prompt}"`);
 
             try {
                 const startTime = performance.now();
@@ -742,7 +1208,7 @@
                 // Simulasi progres (ganti dengan fetch sebenarnya)
                 for (let i = 0; i < 5; i++) {
                     await new Promise(resolve => setTimeout(resolve, 300));
-                    logToConsole(`Memproses... (langkah ${i + 1}/5)`);
+                    logToConsole(`Memproses dengan ${selectedModel}... (langkah ${i + 1}/5)`);
                 }
                 
                 // Panggilan API sebenarnya
@@ -762,17 +1228,26 @@
                 metaDiv.innerHTML = `
                     <span>Dihasilkan dalam ${responseTime.toFixed(0)}ms</span>
                     <span>${data.length} karakter</span>
+                    <span>Model: ${selectedModel}</span>
                 `;
                 
-                // Tampilkan info model
-                showModelInfo();
+                // Simpan ke riwayat
+                saveToHistory(prompt, data.replace(/\n/g, '<br>'));
                 
-                logToConsole(`Respon diterima dalam ${responseTime.toFixed(0)}ms`, 'success');
+                logToConsole(`Respon diterima dari ${selectedModel} dalam ${responseTime.toFixed(0)}ms`, 'success');
                 
             } catch (error) {
                 responseDiv.innerHTML = `<p style="color: var(--error);"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
-                logToConsole(`Error: ${error.message}`, 'error');
+                logToConsole(`Error dari model ${selectedModel}: ${error.message}`, 'error');
                 console.error("Error API:", error);
+                
+                // Update status indicator
+                updateStatus('error', `Error: ${error.message}`);
+                
+                // Set timeout to return to normal status
+                setTimeout(() => {
+                    updateStatus('connected', 'Sistem siap digunakan');
+                }, 3000);
             } finally {
                 submitBtn.disabled = false;
                 buttonText.innerHTML = 'Hasilkan Jawaban';
@@ -781,8 +1256,11 @@
             }
         }
 
-        // Event listener untuk tombol submit
+        // Event listeners
         document.getElementById('submit').addEventListener('click', generateText);
+        document.getElementById('historyBtn').addEventListener('click', toggleHistory);
+        document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+        document.getElementById('closeHistoryBtn').addEventListener('click', hideHistory);
 
         // Tekan Enter untuk mengirim
         document.getElementById('prompt').addEventListener('keypress', function(e) {
@@ -793,8 +1271,26 @@
 
         // Muat contoh acak saat halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
+            initializeModelSelector();
             loadExamples();
             logToConsole('Sistem siap digunakan');
+            
+            // Check for any initial errors
+            if (!navigator.onLine) {
+                updateStatus('error', 'Tidak ada koneksi internet');
+                logToConsole('Peringatan: Tidak ada koneksi internet', 'warning');
+            }
+        });
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            updateStatus('connected', 'Koneksi internet pulih');
+            logToConsole('Koneksi internet pulih', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            updateStatus('error', 'Tidak ada koneksi internet');
+            logToConsole('Peringatan: Tidak ada koneksi internet', 'warning');
         });
     </script>
 </body>
